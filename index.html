@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechFix — Assistência Técnica de Celular</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #185FA5;
+    --blue-dark: #042C53;
+    --blue-mid: #0C447C;
+    --blue-light: #E6F1FB;
+    --blue-accent: #378ADD;
+    --amber: #EF9F27;
+    --amber-dark: #d08a1a;
+    --amber-light: #FAEEDA;
+    --wa: #25D366;
+    --wa-dark: #1aaa52;
+    --text: #0f1923;
+    --text-muted: #4a5568;
+    --border: #d4dde8;
+    --bg: #f4f7fb;
+    --white: #ffffff;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  nav {
+    background: var(--blue-dark);
+    padding: 0 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 66px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--amber); }
+
+  .nav-wa {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--wa);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .nav-wa:hover { background: var(--wa-dark); }
+
+  .hero {
+    background: var(--blue-dark);
+    background-image: radial-gradient(circle at 75% 40%, #0C447C 0%, transparent 55%);
+    color: #fff;
+    padding: 80px 5% 88px;
+    text-align: center;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239,159,39,0.15);
+    border: 1px solid rgba(239,159,39,0.35);
+    color: var(--amber);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -1.5px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero h1 em { font-style: normal; color: var(--amber); }
+
+  .hero p {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.7);
+    max-width: 500px;
+    margin: 0 auto 36px;
+    line-height: 1.7;
+  }
+
+  .hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+
+  .chip {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.8);
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 100px;
+  }
+
+  .btn-wa-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--wa);
+    color: #fff;
+    border: none;
+    padding: 18px 36px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: -0.3px;
+  }
+  .btn-wa-hero:hover { background: var(--wa-dark); }
+  .btn-wa-hero:active { transform: scale(0.98); }
+  .btn-wa-hero svg { width: 22px; height: 22px; flex-shrink: 0; }
+
+  .hero-sub {
+    display: block;
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 14px;
+  }
+
+  .hero-proof {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 52px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .proof-item strong {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--amber);
+  }
+
+  .proof-item span { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+  .brands {
+    background: var(--white);
+    padding: 24px 5%;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brands-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .brands-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .brand-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .brand-tag {
+    background: var(--blue-light);
+    color: var(--blue-mid);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 100px;
+    border: 1px solid #b5d4f4;
+  }
+
+  .services { padding: 72px 5%; background: var(--bg); }
+
+  .section-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue-accent);
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    color: var(--blue-dark);
+    margin-bottom: 40px;
+    letter-spacing: -0.5px;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    max-width: 920px;
+    margin: 0 auto 40px;
+  }
+
+  .service-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 20px;
+    transition: border-color 0.2s;
+  }
+  .service-card:hover { border-color: var(--blue-accent); }
+
+  .svc-icon { font-size: 28px; margin-bottom: 12px; }
+
+  .service-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--blue-dark);
+    margin-bottom: 6px;
+  }
+
+  .service-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+  .service-card .price { margin-top: 12px; font-size: 13px; font-weight: 500; color: var(--blue-accent); }
+
+  .section-cta { text-align: center; }
+
+  .how { padding: 72px 5%; background: var(--blue-dark); color: #fff; }
+  .how .section-label { color: var(--amber); }
+  .how .section-title { color: #fff; margin-bottom: 48px; }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 32px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .step { text-align: center; }
+
+  .step-num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--blue-dark);
+    margin: 0 auto 14px;
+  }
+
+  .step h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 800; margin-bottom: 8px; }
+  .step p { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+  .testimonials { padding: 72px 5%; background: var(--white); }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .testimonial {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 20px;
+  }
+
+  .stars { color: var(--amber); font-size: 13px; letter-spacing: 2px; margin-bottom: 12px; }
+
+  .testimonial blockquote {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+
+  .testimonial cite { font-size: 12px; font-weight: 500; color: var(--blue-dark); font-style: normal; }
+
+  .cta-final {
+    padding: 80px 5%;
+    text-align: center;
+    background: var(--blue-dark);
+    background-image: radial-gradient(circle at 30% 60%, #0C447C 0%, transparent 55%);
+    color: #fff;
+  }
+
+  .cta-final h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  .cta-final p { font-size: 15px; color: rgba(255,255,255,0.6); margin-bottom: 32px; }
+
+  .btn-wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--wa);
+    color: #fff;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: -0.2px;
+  }
+  .btn-wa:hover { background: var(--wa-dark); }
+  .btn-wa:active { transform: scale(0.98); }
+  .btn-wa svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+  .cta-note { display: block; font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 14px; }
+
+  footer {
+    background: #020e1a;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 28px 5%;
+    font-size: 13px;
+  }
+  footer strong { color: rgba(255,255,255,0.7); }
+
+  .float-wa {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--wa);
+    color: #fff;
+    padding: 13px 20px;
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.35);
+    transition: background 0.2s, transform 0.1s;
+  }
+  .float-wa:hover { background: var(--wa-dark); transform: translateY(-2px); }
+  .float-wa svg { width: 20px; height: 20px; }
+
+  @media (max-width: 700px) {
+    .hero-proof { gap: 20px; }
+    .brands-inner { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .float-wa span { display: none; }
+    .float-wa { padding: 14px; border-radius: 50%; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Tech<span>Fix</span></div>
+  <a class="nav-wa" href="https://wa.me/5511980000000?text=Oi!%20Vim%20pelo%20site%20e%20quero%20um%20or%C3%A7amento%20gratuito." target="_blank">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.522 5.847L.057 23.882a.5.5 0 0 0 .61.61l6.035-1.465A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.893a9.893 9.893 0 0 1-5.045-1.382l-.361-.214-3.737.908.923-3.642-.235-.374A9.867 9.867 0 0 1 2.107 12C2.107 6.58 6.58 2.107 12 2.107c5.42 0 9.893 4.473 9.893 9.893 0 5.42-4.473 9.893-9.893 9.893z"/></svg>
+    Falar no WhatsApp
+  </a>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">⚡ Orçamento grátis em até 30 minutos</div>
+  <h1>Seu celular quebrou?<br><em>A gente resolve hoje.</em></h1>
+  <p>Tela trincada, bateria viciada, câmera com defeito ou celular que não liga — consertamos tudo com garantia e peças de qualidade.</p>
+
+  <div class="hero-chips">
+    <span class="chip">✓ Tela no mesmo dia</span>
+    <span class="chip">✓ 90 dias de garantia</span>
+    <span class="chip">✓ Sem perder seus dados</span>
+    <span class="chip">✓ Peças originais</span>
+  </div>
+
+  <a class="btn-wa-hero" href="https://wa.me/5511980000000?text=Oi!%20Vim%20pelo%20site%20e%20quero%20um%20or%C3%A7amento%20gratuito." target="_blank">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.522 5.847L.057 23.882a.5.5 0 0 0 .61.61l6.035-1.465A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.893a9.893 9.893 0 0 1-5.045-1.382l-.361-.214-3.737.908.923-3.642-.235-.374A9.867 9.867 0 0 1 2.107 12C2.107 6.58 6.58 2.107 12 2.107c5.42 0 9.893 4.473 9.893 9.893 0 5.42-4.473 9.893-9.893 9.893z"/></svg>
+    Pedir orçamento grátis agora
+  </a>
+  <span class="hero-sub">Respondemos em minutos • Seg–Sáb, 9h–19h</span>
+
+  <div class="hero-proof">
+    <div class="proof-item"><strong>+8.500</strong><span>celulares consertados</span></div>
+    <div class="proof-item"><strong>97%</strong><span>de aprovação</span></div>
+    <div class="proof-item"><strong>1h</strong><span>tempo médio de reparo</span></div>
+  </div>
+</section>
+
+<div class="brands">
+  <div class="brands-inner">
+    <span class="brands-label">Consertamos:</span>
+    <div class="brand-tags">
+      <span class="brand-tag">iPhone</span>
+      <span class="brand-tag">Samsung</span>
+      <span class="brand-tag">Motorola</span>
+      <span class="brand-tag">Xiaomi</span>
+      <span class="brand-tag">Redmi</span>
+      <span class="brand-tag">LG</span>
+      <span class="brand-tag">Positivo</span>
+      <span class="brand-tag">e mais</span>
+    </div>
+  </div>
+</div>
+
+<section class="services">
+  <p class="section-label">Nossos serviços</p>
+  <h2 class="section-title">O que a gente conserta</h2>
+  <div class="services-grid">
+    <div class="service-card"><div class="svc-icon">📱</div><h3>Troca de tela</h3><p>Display original ou compatível com qualidade garantida. Pronto em até 1h.</p><p class="price">A partir de R$ 149</p></div>
+    <div class="service-card"><div class="svc-icon">🔋</div><h3>Troca de bateria</h3><p>Bateria viciada ou que não carrega mais. Voltamos a autonomia do aparelho.</p><p class="price">A partir de R$ 89</p></div>
+    <div class="service-card"><div class="svc-icon">📷</div><h3>Câmera e lente</h3><p>Câmera embaçada, preta ou com defeito. Diagnóstico e troca com garantia.</p><p class="price">A partir de R$ 120</p></div>
+    <div class="service-card"><div class="svc-icon">⚡</div><h3>Conector de carga</h3><p>Entrada USB danificada ou USB-C com mau contato. Conserto rápido e seguro.</p><p class="price">A partir de R$ 79</p></div>
+    <div class="service-card"><div class="svc-icon">🔊</div><h3>Áudio e microfone</h3><p>Alto-falante ou microfone com problema. Diagnóstico gratuito.</p><p class="price">A partir de R$ 69</p></div>
+    <div class="service-card"><div class="svc-icon">💾</div><h3>Recuperação de dados</h3><p>Celular bloqueado ou tela preta? Recuperamos fotos, contatos e arquivos.</p><p class="price">Consultar</p></div>
+  </div>
+  <div class="section-cta">
+    <a class="btn-wa" href="https://wa.me/5511980000000?text=Oi!%20Quero%20saber%20o%20pre%C3%A7o%20do%20conserto%20do%20meu%20celular." target="_blank">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.522 5.847L.057 23.882a.5.5 0 0 0 .61.61l6.035-1.465A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.893a9.893 9.893 0 0 1-5.045-1.382l-.361-.214-3.737.908.923-3.642-.235-.374A9.867 9.867 0 0 1 2.107 12C2.107 6.58 6.58 2.107 12 2.107c5.42 0 9.893 4.473 9.893 9.893 0 5.42-4.473 9.893-9.893 9.893z"/></svg>
+      Consultar preço pelo WhatsApp
+    </a>
+  </div>
+</section>
+
+<section class="how">
+  <p class="section-label">Como funciona</p>
+  <h2 class="section-title">Simples, rápido e sem burocracia</h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><h3>Manda mensagem</h3><p>Fale com a gente pelo WhatsApp e descreva o problema do seu celular.</p></div>
+    <div class="step"><div class="step-num">2</div><h3>Receba o orçamento</h3><p>Nosso técnico responde em até 30 min com o valor e prazo do reparo.</p></div>
+    <div class="step"><div class="step-num">3</div><h3>Traga ou agende coleta</h3><p>Leve à loja ou solicite coleta no seu endereço. Consertamos e devolvemos.</p></div>
+    <div class="step"><div class="step-num">4</div><h3>Celular como novo</h3><p>Entregamos com 90 dias de garantia e nota fiscal do serviço.</p></div>
+  </div>
+</section>
+
+<section class="testimonials">
+  <p class="section-label">Avaliações reais</p>
+  <h2 class="section-title">O que nossos clientes dizem</h2>
+  <div class="testimonials-grid">
+    <div class="testimonial"><div class="stars">★★★★★</div><blockquote>"Troquei a tela do meu iPhone em menos de 1 hora. Atendimento excelente, preço justo e ainda deram garantia. Recomendo demais!"</blockquote><cite>— Lucas F., São Paulo</cite></div>
+    <div class="testimonial"><div class="stars">★★★★★</div><blockquote>"Meu Samsung não carregava mais. Trouxe de manhã e peguei no almoço. Ótimo serviço e muito honesto no orçamento."</blockquote><cite>— Mariana T., Guarulhos</cite></div>
+    <div class="testimonial"><div class="stars">★★★★★</div><blockquote>"Achei que ia perder todas as minhas fotos, mas eles recuperaram tudo! Salvaram meu celular e minha memória. Nota 10."</blockquote><cite>— Roberto S., Santo André</cite></div>
+  </div>
+</section>
+
+<section class="cta-final">
+  <h2>Seu celular consertado hoje mesmo</h2>
+  <p>Fale agora com nosso técnico e receba o orçamento em até 30 minutos. Sem compromisso.</p>
+  <a class="btn-wa" href="https://wa.me/5511980000000?text=Oi!%20Vim%20pelo%20site%20e%20quero%20um%20or%C3%A7amento%20gratuito." target="_blank">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.522 5.847L.057 23.882a.5.5 0 0 0 .61.61l6.035-1.465A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.893a9.893 9.893 0 0 1-5.045-1.382l-.361-.214-3.737.908.923-3.642-.235-.374A9.867 9.867 0 0 1 2.107 12C2.107 6.58 6.58 2.107 12 2.107c5.42 0 9.893 4.473 9.893 9.893 0 5.42-4.473 9.893-9.893 9.893z"/></svg>
+    Chamar no WhatsApp agora
+  </a>
+  <span class="cta-note">Respondemos em minutos • Seg–Sáb, 9h às 19h</span>
+</section>
+
+<footer>
+  <strong>TechFix Assistência Técnica</strong> — Rua das Flores, 250, São Paulo – SP &nbsp;|&nbsp; (11) 9 8000-0000
+  <br>CNPJ 00.000.000/0001-00 &nbsp;•&nbsp; Seg–Sáb: 9h às 19h
+  <br><br><span style="opacity:.5">Landing page de teste para Google Ads</span>
+</footer>
+
+<a class="float-wa" href="https://wa.me/5511980000000?text=Oi!%20Vim%20pelo%20site%20e%20quero%20um%20or%C3%A7amento%20gratuito." target="_blank">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.522 5.847L.057 23.882a.5.5 0 0 0 .61.61l6.035-1.465A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.893a9.893 9.893 0 0 1-5.045-1.382l-.361-.214-3.737.908.923-3.642-.235-.374A9.867 9.867 0 0 1 2.107 12C2.107 6.58 6.58 2.107 12 2.107c5.42 0 9.893 4.473 9.893 9.893 0 5.42-4.473 9.893-9.893 9.893z"/></svg>
+  <span>Falar no WhatsApp</span>
+</a>
+
+</body>
+</html>
