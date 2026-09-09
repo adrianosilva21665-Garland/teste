@@ -1,0 +1,810 @@
+<title>Sobra do Mês</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;700;800&display=swap">
+<style>
+  :root{
+    --page:#f9f9f7; --surface:#fcfcfb; --surface-raised:#ffffff;
+    --ink:#0b0b0b; --ink-soft:#52514e; --ink-muted:#898781;
+    --line:#e1e0d9; --border:rgba(11,11,11,0.10);
+    --accent:#2a78d6; --accent-ink:#ffffff;
+    --good:#006300; --good-bg:#e5f3e0;
+    --warning:#a86400; --warning-bg:#fff2d8;
+    --critical:#b23131; --critical-bg:#fbe7e5;
+    --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a; --series-4:#eda100;
+    --series-5:#e87ba4; --series-6:#008300; --series-7:#4a3aa7; --series-8:#e34948;
+    --shadow:0 1px 2px rgba(11,11,11,.05), 0 10px 28px rgba(11,11,11,.07);
+    --radius:14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page:#0d0d0d; --surface:#1a1a19; --surface-raised:#201f1e;
+      --ink:#ffffff; --ink-soft:#c3c2b7; --ink-muted:#8f8d86;
+      --line:#2c2c2a; --border:rgba(255,255,255,0.12);
+      --accent:#3987e5; --accent-ink:#04101d;
+      --good:#3ecb3e; --good-bg:rgba(62,203,62,0.16);
+      --warning:#f3b13a; --warning-bg:rgba(243,177,58,0.16);
+      --critical:#ea7a7a; --critical-bg:rgba(234,122,122,0.16);
+      --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --series-4:#c98500;
+      --series-5:#d55181; --series-6:#3fae3f; --series-7:#9085e9; --series-8:#e66767;
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px rgba(0,0,0,.5);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#0d0d0d; --surface:#1a1a19; --surface-raised:#201f1e;
+    --ink:#ffffff; --ink-soft:#c3c2b7; --ink-muted:#8f8d86;
+    --line:#2c2c2a; --border:rgba(255,255,255,0.12);
+    --accent:#3987e5; --accent-ink:#04101d;
+    --good:#3ecb3e; --good-bg:rgba(62,203,62,0.16);
+    --warning:#f3b13a; --warning-bg:rgba(243,177,58,0.16);
+    --critical:#ea7a7a; --critical-bg:rgba(234,122,122,0.16);
+    --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --series-4:#c98500;
+    --series-5:#d55181; --series-6:#3fae3f; --series-7:#9085e9; --series-8:#e66767;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px rgba(0,0,0,.5);
+    color-scheme: dark;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:"Manrope", system-ui, sans-serif;
+    font-size:16px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:"Fraunces", Georgia, serif; margin:0; text-wrap:balance; }
+  button, input, select{ font-family:inherit; }
+  .num{ font-variant-numeric: tabular-nums; }
+
+  a{ color:var(--accent); }
+
+  .app{ max-width:1180px; margin:0 auto; padding:0 20px 64px; }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    padding:28px 0 6px;
+  }
+  .topbar .eyebrow{
+    font-size:12px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:8px;
+  }
+  .topbar h1{ font-size:clamp(1.6rem, 3vw, 2.3rem); font-weight:700; color:var(--ink); }
+  .topbar p{ color:var(--ink-soft); max-width:56ch; margin-top:8px; font-size:15px; }
+
+  /* ---------- control bar (sticky) ---------- */
+  .control-bar{
+    position:sticky; top:0; z-index:50;
+    background:color-mix(in srgb, var(--page) 88%, transparent);
+    backdrop-filter: blur(10px) saturate(1.1);
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+    margin-top:8px;
+  }
+  .control-grid{
+    display:grid; grid-template-columns: 220px 1fr 1fr; gap:20px; align-items:center;
+  }
+  @media (max-width:820px){ .control-grid{ grid-template-columns:1fr; gap:14px; } }
+
+  .salary-field label{
+    display:block; font-size:12px; font-weight:700; color:var(--ink-muted);
+    text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;
+  }
+  .salary-input-wrap{
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface-raised); border:1.5px solid var(--line); border-radius:10px;
+    padding:8px 12px;
+  }
+  .salary-input-wrap:focus-within{ border-color:var(--accent); }
+  .salary-input-wrap span{ color:var(--ink-muted); font-weight:700; }
+  .salary-input-wrap input{
+    border:none; outline:none; background:transparent; color:var(--ink);
+    font-size:1.15rem; font-weight:800; width:100%; min-width:0;
+  }
+
+  .balance-block{ text-align:left; }
+  .balance-label{ font-size:12px; font-weight:700; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.06em; }
+  .balance-value{ font-family:"Fraunces",serif; font-weight:700; font-size:clamp(1.5rem,3vw,2.1rem); line-height:1.15; }
+  .balance-value.good{ color:var(--good); }
+  .balance-value.bad{ color:var(--critical); }
+  .balance-sub{ font-size:13px; color:var(--ink-soft); margin-top:2px; }
+
+  .meter-block{ }
+  .meter-top{ display:flex; justify-content:space-between; font-size:12px; color:var(--ink-muted); margin-bottom:6px; font-weight:600; }
+  .meter-track{ height:12px; border-radius:8px; background:var(--line); overflow:hidden; position:relative; }
+  .meter-fill{ height:100%; border-radius:8px 3px 3px 8px; transition:width .35s ease, background-color .35s ease; }
+  .meter-status{ margin-top:6px; font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px; }
+  .status-dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+
+  /* ---------- layout ---------- */
+  main.grid{ display:grid; grid-template-columns: 1.35fr 1fr; gap:24px; margin-top:28px; align-items:start; }
+  @media (max-width:900px){ main.grid{ grid-template-columns:1fr; } }
+
+  .panel{
+    background:var(--surface-raised); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 22px 24px; box-shadow:var(--shadow);
+  }
+  .panel h2{ font-size:1.15rem; font-weight:700; margin-bottom:4px; }
+  .panel .hint{ font-size:13px; color:var(--ink-soft); margin-bottom:16px; }
+
+  /* quick add chips */
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .chip{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1.5px solid var(--line); background:var(--surface);
+    color:var(--ink-soft); font-size:13px; font-weight:600;
+    padding:7px 12px 7px 8px; border-radius:100px; cursor:pointer;
+    transition:border-color .15s, color .15s, transform .1s;
+  }
+  .chip:hover{ border-color:var(--accent); color:var(--ink); }
+  .chip:active{ transform:scale(.97); }
+  .chip .dot{ width:9px; height:9px; border-radius:50%; flex:none; }
+
+  /* ledger */
+  .ledger{ display:flex; flex-direction:column; }
+  .ledger-head{
+    display:grid; grid-template-columns: 18px 150px 1fr 130px 30px;
+    gap:10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-muted); padding:0 0 8px; border-bottom:1px solid var(--line);
+  }
+  .row{
+    display:grid; grid-template-columns: 18px 150px 1fr 130px 30px;
+    gap:10px; align-items:center; padding:9px 0; border-bottom:1px solid var(--line);
+  }
+  @media (max-width:640px){
+    .ledger-head{ display:none; }
+    .row{ grid-template-columns: 14px 1fr; grid-template-areas: "dot cat" "desc desc" "val val" "rm rm"; row-gap:6px; padding:12px 0; }
+    .row select{ grid-area:cat; }
+    .row .desc-input{ grid-area:desc; }
+    .row .value-input{ grid-area:val; }
+    .row .remove-btn{ grid-area:rm; justify-self:end; }
+    .row .dot{ grid-area:dot; }
+  }
+  .row .dot{ width:11px; height:11px; border-radius:50%; flex:none; }
+  .row select{
+    border:1.5px solid var(--line); background:var(--surface); color:var(--ink);
+    border-radius:8px; padding:7px 8px; font-size:13px; font-weight:600; min-width:0;
+  }
+  .row .desc-input, .row .value-input{
+    border:1.5px solid transparent; background:transparent; color:var(--ink);
+    border-radius:8px; padding:7px 8px; font-size:14px; min-width:0; width:100%;
+  }
+  .row .value-input{ text-align:right; font-weight:700; }
+  .row .desc-input:hover, .row .value-input:hover{ background:var(--surface); }
+  .row .desc-input:focus, .row .value-input:focus{ outline:none; border-color:var(--accent); background:var(--surface); }
+  .remove-btn{
+    width:26px; height:26px; border-radius:50%; border:1px solid var(--line); background:var(--surface);
+    color:var(--ink-muted); font-size:15px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .remove-btn:hover{ background:var(--critical-bg); color:var(--critical); border-color:var(--critical); }
+
+  .ledger-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:10px; flex-wrap:wrap; }
+  .btn{
+    font-weight:700; font-size:14px; border-radius:9px; padding:10px 16px; cursor:pointer; border:1.5px solid transparent;
+  }
+  .btn-primary{ background:var(--accent); color:var(--accent-ink); }
+  .btn-primary:hover{ filter:brightness(1.05); }
+  .btn-ghost{ background:transparent; color:var(--ink-soft); border-color:var(--line); }
+  .btn-ghost:hover{ border-color:var(--ink-muted); color:var(--ink); }
+  .total-row{ text-align:right; font-size:14px; color:var(--ink-soft); margin-top:14px; }
+  .total-row strong{ color:var(--ink); font-size:1.05rem; }
+
+  /* example banner */
+  .example-banner{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    background:var(--warning-bg); border:1px solid var(--warning); color:var(--ink);
+    border-radius:10px; padding:10px 14px; font-size:13px; margin-bottom:16px;
+  }
+  .example-banner button{ background:none; border:1px solid var(--ink-muted); color:var(--ink); border-radius:7px; padding:5px 10px; font-size:12px; font-weight:700; cursor:pointer; flex:none; }
+
+  /* charts panel */
+  .chart-block{ margin-bottom:26px; }
+  .chart-block:last-child{ margin-bottom:0; }
+  .donut-area{ display:flex; align-items:center; gap:18px; }
+  .donut-svg{ flex:none; width:170px; height:170px; }
+  .legend{ display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; }
+  .legend-row{
+    display:flex; align-items:center; gap:8px; padding:6px 6px; border-radius:8px;
+    background:none; border:1px solid transparent; cursor:pointer; text-align:left; width:100%;
+    font-family:inherit; color:var(--ink);
+  }
+  .legend-row:hover, .legend-row.hi{ background:var(--surface); border-color:var(--line); }
+  .legend-row .dot{ width:9px; height:9px; border-radius:50%; flex:none; }
+  .legend-row .lname{ font-size:12.5px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink-soft); }
+  .legend-row .lval{ font-size:12.5px; font-weight:700; }
+  .legend-row .lpct{ font-size:11px; color:var(--ink-muted); width:34px; text-align:right; flex:none; }
+  .donut-empty{ font-size:13px; color:var(--ink-muted); text-align:center; padding:20px 0; }
+
+  .compare{ display:flex; flex-direction:column; gap:14px; }
+  .compare-row{ }
+  .compare-labels{ display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:5px; }
+  .compare-labels .name{ color:var(--ink-soft); font-weight:600; }
+  .compare-labels .amt{ font-weight:700; }
+  .compare-track{ height:22px; border-radius:5px; background:var(--surface); border:1px solid var(--line); overflow:hidden; }
+  .compare-fill{ height:100%; border-radius:0 4px 4px 0; transition:width .35s ease, background-color .35s ease; }
+  .compare-note{ font-size:12px; margin-top:5px; font-weight:600; }
+
+  .tips{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:14px 16px; font-size:13px; color:var(--ink-soft); }
+  .tips strong{ color:var(--ink); }
+  .tips ul{ margin:8px 0 0; padding-left:18px; }
+  .tips li{ margin-bottom:4px; }
+
+  .tooltip{
+    position:fixed; pointer-events:none; background:var(--ink); color:var(--page);
+    font-size:12px; font-weight:600; padding:6px 9px; border-radius:7px; z-index:200;
+    transform:translate(-50%,-120%); opacity:0; transition:opacity .1s; white-space:nowrap;
+  }
+  .tooltip.show{ opacity:1; }
+
+  footer{ margin-top:36px; text-align:center; font-size:12px; color:var(--ink-muted); }
+
+  @media (prefers-reduced-motion: reduce){
+    .meter-fill, .compare-fill{ transition:none; }
+  }
+</style>
+
+<div class="app">
+
+  <header class="topbar">
+    <div class="eyebrow">Calculadora pessoal de orçamento</div>
+    <h1>Quanto sobra do seu salário?</h1>
+    <p>Preencha seu salário e seus gastos do mês. A conta é feita sozinha, na hora — e o gráfico te mostra pra onde o dinheiro está indo. Se o número ficar vermelho, é sinal de que os gastos passaram do salário.</p>
+  </header>
+
+  <div class="control-bar">
+    <div class="control-grid">
+      <div class="salary-field">
+        <label for="salaryInput">Seu salário (por mês)</label>
+        <div class="salary-input-wrap">
+          <span>R$</span>
+          <input id="salaryInput" type="text" inputmode="decimal" value="0,00" aria-label="Salário mensal">
+        </div>
+      </div>
+
+      <div class="balance-block">
+        <div class="balance-label" id="balanceLabel">O que sobra no fim do mês</div>
+        <div class="balance-value num good" id="balanceValue">R$ 0,00</div>
+        <div class="balance-sub" id="balanceSub"></div>
+      </div>
+
+      <div class="meter-block">
+        <div class="meter-top"><span>Salário comprometido</span><span class="num" id="meterPct">0%</span></div>
+        <div class="meter-track"><div class="meter-fill" id="meterFill" style="width:0%"></div></div>
+        <div class="meter-status" id="meterStatus"><span class="status-dot"></span><span>Sem gastos ainda</span></div>
+      </div>
+    </div>
+  </div>
+
+  <main class="grid">
+
+    <section class="panel">
+      <h2>Seus gastos</h2>
+      <p class="hint">Clique em um gasto comum pra adicionar rapidinho, ou use "Adicionar gasto" pra criar um do zero.</p>
+
+      <div class="example-banner" id="exampleBanner">
+        <span>👉 Estes valores são só um <strong>exemplo</strong>, pra você ver como funciona.</span>
+        <button id="clearExampleBtn" type="button">Limpar e usar os meus números</button>
+      </div>
+
+      <div class="chips" id="quickChips"></div>
+
+      <div class="ledger-head">
+        <span></span><span>Categoria</span><span>Descrição</span><span style="text-align:right">Valor</span><span></span>
+      </div>
+      <div class="ledger" id="ledger"></div>
+
+      <div class="ledger-actions">
+        <button class="btn btn-primary" id="addRowBtn" type="button">+ Adicionar gasto</button>
+        <button class="btn btn-ghost" id="resetBtn" type="button">Limpar tudo</button>
+      </div>
+      <div class="total-row">Total de gastos: <strong class="num" id="totalGastos">R$ 0,00</strong></div>
+    </section>
+
+    <aside class="panel">
+      <h2>Resumo visual</h2>
+      <p class="hint">Pra onde seu dinheiro está indo.</p>
+
+      <div class="chart-block">
+        <div class="donut-area" id="donutArea">
+          <svg class="donut-svg" viewBox="0 0 200 200" id="donutSvg" role="img" aria-label="Gráfico de gastos por categoria"></svg>
+          <div class="legend" id="legend"></div>
+        </div>
+        <div class="donut-empty" id="donutEmpty" hidden>Adicione um gasto para ver o gráfico.</div>
+      </div>
+
+      <div class="chart-block">
+        <div class="compare">
+          <div class="compare-row">
+            <div class="compare-labels"><span class="name">Salário</span><span class="amt num" id="cmpRendaAmt">R$ 0,00</span></div>
+            <div class="compare-track"><div class="compare-fill" id="cmpRendaFill" style="width:0%; background:var(--accent)"></div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-labels"><span class="name">Gastos</span><span class="amt num" id="cmpGastoAmt">R$ 0,00</span></div>
+            <div class="compare-track"><div class="compare-fill" id="cmpGastoFill" style="width:0%"></div></div>
+            <div class="compare-note" id="cmpNote"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tips">
+        <strong>Como ler isso:</strong>
+        <ul>
+          <li>Número <strong>verde</strong> = ainda sobra dinheiro no mês.</li>
+          <li>Número <strong>vermelho</strong> = os gastos passaram do salário.</li>
+          <li>Seus dados ficam salvos só neste navegador — ninguém mais vê.</li>
+        </ul>
+      </div>
+    </aside>
+
+  </main>
+
+  <footer>Feito pra ajudar a organizar as contas do mês. Nada aqui é enviado pra nenhum servidor.</footer>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CATS = [
+    { key:"moradia",     label:"Moradia",             varc:"--series-1" },
+    { key:"contas",      label:"Contas da casa",      varc:"--series-2" },
+    { key:"alimentacao", label:"Alimentação",         varc:"--series-3" },
+    { key:"transporte",  label:"Transporte",          varc:"--series-4" },
+    { key:"saude",       label:"Saúde",               varc:"--series-5" },
+    { key:"lazer",       label:"Lazer",               varc:"--series-6" },
+    { key:"dividas",     label:"Dívidas / cartão",    varc:"--series-7" },
+    { key:"outros",      label:"Outros",              varc:"--series-8" }
+  ];
+  var catByKey = {};
+  CATS.forEach(function(c){ catByKey[c.key] = c; });
+
+  var QUICK_ADD = [
+    { cat:"moradia", desc:"Aluguel ou financiamento" },
+    { cat:"moradia", desc:"Condomínio" },
+    { cat:"contas", desc:"Água" },
+    { cat:"contas", desc:"Luz" },
+    { cat:"contas", desc:"Internet" },
+    { cat:"contas", desc:"Celular" },
+    { cat:"alimentacao", desc:"Mercado" },
+    { cat:"transporte", desc:"Combustível" },
+    { cat:"transporte", desc:"Transporte público" },
+    { cat:"saude", desc:"Plano de saúde" },
+    { cat:"saude", desc:"Farmácia" },
+    { cat:"lazer", desc:"Streaming e lazer" },
+    { cat:"dividas", desc:"Cartão de crédito" },
+    { cat:"dividas", desc:"Empréstimo" },
+    { cat:"outros", desc:"Outros gastos" }
+  ];
+
+  var STORAGE_KEY = "sobra-do-mes-v1";
+  var uidCounter = 1;
+  function uid(){ return "r" + (uidCounter++) + "-" + Math.random().toString(36).slice(2,7); }
+
+  function defaultState(){
+    return {
+      salary: 3200,
+      isExample: true,
+      expenses: [
+        { id: uid(), cat:"moradia",     desc:"Aluguel",              value:900 },
+        { id: uid(), cat:"contas",      desc:"Luz",                  value:180 },
+        { id: uid(), cat:"contas",      desc:"Internet",             value:100 },
+        { id: uid(), cat:"alimentacao", desc:"Mercado",               value:650 },
+        { id: uid(), cat:"transporte",  desc:"Combustível",           value:220 },
+        { id: uid(), cat:"saude",       desc:"Plano de saúde",        value:150 },
+        { id: uid(), cat:"lazer",       desc:"Streaming e lazer",     value:60 },
+        { id: uid(), cat:"dividas",     desc:"Cartão de crédito",     value:400 }
+      ]
+    };
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      var parsed = JSON.parse(raw);
+      if(!parsed || typeof parsed.salary !== "number" || !Array.isArray(parsed.expenses)) return defaultState();
+      return parsed;
+    }catch(e){ return defaultState(); }
+  }
+
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  var state = loadState();
+
+  function fmtBRL(n){
+    var v = (typeof n === "number" && isFinite(n)) ? n : 0;
+    return v.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+  }
+
+  function parseMoney(str){
+    if(typeof str !== "string") return Number(str) || 0;
+    str = str.trim().replace(/[^\d.,\-]/g, "");
+    if(str === "") return 0;
+    var hasComma = str.indexOf(",") !== -1;
+    var hasDot = str.indexOf(".") !== -1;
+    if(hasComma && hasDot){
+      str = str.replace(/\./g, "").replace(",", ".");
+    } else if(hasComma){
+      str = str.replace(",", ".");
+    } else if(hasDot){
+      var parts = str.split(".");
+      if(parts.length > 2 || (parts[1] && parts[1].length === 3)){
+        str = parts.join("");
+      }
+    }
+    var n = parseFloat(str);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function hexLuminance(hex){
+    hex = hex.replace("#","").trim();
+    if(hex.length === 3){ hex = hex.split("").map(function(c){return c+c;}).join(""); }
+    var r = parseInt(hex.substr(0,2),16)/255;
+    var g = parseInt(hex.substr(2,2),16)/255;
+    var b = parseInt(hex.substr(4,2),16)/255;
+    function lin(c){ return c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); }
+    return 0.2126*lin(r) + 0.7152*lin(g) + 0.0722*lin(b);
+  }
+
+  function seriesColor(varc){
+    return getComputedStyle(document.documentElement).getPropertyValue(varc).trim();
+  }
+
+  function contrastTextFor(hex){
+    return hexLuminance(hex) > 0.42 ? "#0b0b0b" : "#ffffff";
+  }
+
+  var tooltipEl = document.getElementById("tooltip");
+  function showTooltip(x, y, text){
+    tooltipEl.textContent = text;
+    tooltipEl.style.left = x + "px";
+    tooltipEl.style.top = y + "px";
+    tooltipEl.classList.add("show");
+  }
+  function hideTooltip(){ tooltipEl.classList.remove("show"); }
+
+  /* ---------------- quick-add chips ---------------- */
+  var chipsWrap = document.getElementById("quickChips");
+  QUICK_ADD.forEach(function(item){
+    var cat = catByKey[item.cat];
+    var chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip";
+    chip.innerHTML = '<span class="dot" style="background:' + seriesColor(cat.varc) + '"></span>' + item.desc;
+    chip.addEventListener("click", function(){
+      addRow(item.cat, item.desc, null);
+    });
+    chipsWrap.appendChild(chip);
+  });
+
+  /* ---------------- ledger rows ---------------- */
+  var ledgerEl = document.getElementById("ledger");
+
+  function catOptionsHTML(selected){
+    return CATS.map(function(c){
+      return '<option value="' + c.key + '"' + (c.key===selected ? " selected" : "") + '>' + c.label + '</option>';
+    }).join("");
+  }
+
+  function addRow(catKey, desc, value){
+    state.expenses.push({ id: uid(), cat: catKey || "outros", desc: desc || "", value: (value===null||value===undefined) ? 0 : value });
+    markEdited();
+    renderAll();
+    var lastInput = ledgerEl.querySelector('.row:last-child .value-input');
+    if(lastInput){ lastInput.focus(); lastInput.select(); }
+  }
+
+  function markEdited(){
+    if(state.isExample){ state.isExample = false; }
+  }
+
+  function renderRows(){
+    ledgerEl.innerHTML = "";
+    state.expenses.forEach(function(exp){
+      var row = document.createElement("div");
+      row.className = "row";
+      row.dataset.id = exp.id;
+
+      var dot = document.createElement("span");
+      dot.className = "dot";
+      dot.style.background = seriesColor(catByKey[exp.cat].varc);
+
+      var select = document.createElement("select");
+      select.innerHTML = catOptionsHTML(exp.cat);
+      select.addEventListener("change", function(){
+        exp.cat = select.value;
+        dot.style.background = seriesColor(catByKey[exp.cat].varc);
+        markEdited(); saveState(); renderTotalsAndCharts();
+      });
+
+      var descInput = document.createElement("input");
+      descInput.type = "text";
+      descInput.className = "desc-input";
+      descInput.placeholder = "Descrição do gasto";
+      descInput.value = exp.desc;
+      descInput.addEventListener("input", function(){
+        exp.desc = descInput.value;
+        markEdited(); saveState();
+      });
+
+      var valueInput = document.createElement("input");
+      valueInput.type = "text";
+      valueInput.inputMode = "decimal";
+      valueInput.className = "value-input";
+      valueInput.value = exp.value ? exp.value.toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2}) : "";
+      valueInput.placeholder = "0,00";
+      valueInput.addEventListener("input", function(){
+        exp.value = parseMoney(valueInput.value);
+        markEdited(); saveState(); renderTotalsAndCharts();
+      });
+      valueInput.addEventListener("blur", function(){
+        valueInput.value = exp.value ? exp.value.toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2}) : "";
+      });
+
+      var removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "remove-btn";
+      removeBtn.setAttribute("aria-label", "Remover gasto");
+      removeBtn.textContent = "×";
+      removeBtn.addEventListener("click", function(){
+        state.expenses = state.expenses.filter(function(e){ return e.id !== exp.id; });
+        markEdited(); saveState(); renderAll();
+      });
+
+      row.appendChild(dot);
+      row.appendChild(select);
+      row.appendChild(descInput);
+      row.appendChild(valueInput);
+      row.appendChild(removeBtn);
+      ledgerEl.appendChild(row);
+    });
+  }
+
+  /* ---------------- donut chart ---------------- */
+  var donutSvg = document.getElementById("donutSvg");
+  var legendEl = document.getElementById("legend");
+  var donutEmpty = document.getElementById("donutEmpty");
+  var donutArea = document.getElementById("donutArea");
+
+  function describeWedge(cx, cy, rOuter, rInner, startDeg, endDeg){
+    function toRad(a){ return (a - 90) * Math.PI / 180; }
+    function pt(r, a){ return [cx + r*Math.cos(toRad(a)), cy + r*Math.sin(toRad(a))]; }
+    var p1 = pt(rOuter, startDeg), p2 = pt(rOuter, endDeg);
+    var p3 = pt(rInner, endDeg), p4 = pt(rInner, startDeg);
+    var large = (endDeg - startDeg) > 180 ? 1 : 0;
+    return "M" + p1[0] + "," + p1[1] +
+      " A" + rOuter + "," + rOuter + " 0 " + large + " 1 " + p2[0] + "," + p2[1] +
+      " L" + p3[0] + "," + p3[1] +
+      " A" + rInner + "," + rInner + " 0 " + large + " 0 " + p4[0] + "," + p4[1] + " Z";
+  }
+
+  function renderDonut(byCat, total){
+    donutSvg.innerHTML = "";
+    legendEl.innerHTML = "";
+
+    var used = CATS.filter(function(c){ return byCat[c.key] > 0; });
+
+    if(total <= 0 || used.length === 0){
+      donutArea.hidden = true;
+      donutEmpty.hidden = false;
+      return;
+    }
+    donutArea.hidden = false;
+    donutEmpty.hidden = true;
+
+    var cx=100, cy=100, rOuter=94, rInner=62, gapDeg=1.6;
+    var cum = 0;
+
+    used.forEach(function(c){
+      var frac = byCat[c.key] / total;
+      var startDeg = cum + gapDeg/2;
+      var endDeg = cum + frac*360 - gapDeg/2;
+      cum += frac*360;
+      if(endDeg <= startDeg) return;
+
+      var color = seriesColor(c.varc);
+      var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", describeWedge(cx,cy,rOuter,rInner,startDeg,endDeg));
+      path.setAttribute("fill", color);
+      path.dataset.cat = c.key;
+      path.style.cursor = "pointer";
+
+      path.addEventListener("mousemove", function(ev){
+        highlightCat(c.key, true);
+        showTooltip(ev.clientX, ev.clientY, c.label + ": " + fmtBRL(byCat[c.key]) + " (" + Math.round(frac*100) + "%)");
+      });
+      path.addEventListener("mouseleave", function(){ highlightCat(c.key, false); hideTooltip(); });
+      donutSvg.appendChild(path);
+
+      if(frac >= 0.10){
+        var midDeg = startDeg + (endDeg-startDeg)/2;
+        var midR = (rOuter+rInner)/2;
+        var rad = (midDeg-90)*Math.PI/180;
+        var lx = cx + midR*Math.cos(rad), ly = cy + midR*Math.sin(rad);
+        var text = document.createElementNS("http://www.w3.org/2000/svg","text");
+        text.setAttribute("x", lx); text.setAttribute("y", ly);
+        text.setAttribute("text-anchor","middle");
+        text.setAttribute("dominant-baseline","middle");
+        text.setAttribute("font-size","12");
+        text.setAttribute("font-weight","700");
+        text.setAttribute("fill", contrastTextFor(color));
+        text.setAttribute("font-family","Manrope, sans-serif");
+        text.textContent = Math.round(frac*100) + "%";
+        text.style.pointerEvents = "none";
+        donutSvg.appendChild(text);
+      }
+    });
+
+    var centerVal = document.createElementNS("http://www.w3.org/2000/svg","text");
+    centerVal.setAttribute("x","100"); centerVal.setAttribute("y","96");
+    centerVal.setAttribute("text-anchor","middle");
+    centerVal.setAttribute("font-size","16");
+    centerVal.setAttribute("font-weight","800");
+    centerVal.setAttribute("font-family","Fraunces, serif");
+    centerVal.setAttribute("fill", getComputedStyle(document.documentElement).getPropertyValue("--ink").trim());
+    centerVal.textContent = fmtBRL(total);
+    donutSvg.appendChild(centerVal);
+
+    var centerLbl = document.createElementNS("http://www.w3.org/2000/svg","text");
+    centerLbl.setAttribute("x","100"); centerLbl.setAttribute("y","114");
+    centerLbl.setAttribute("text-anchor","middle");
+    centerLbl.setAttribute("font-size","10");
+    centerLbl.setAttribute("font-weight","600");
+    centerLbl.setAttribute("font-family","Manrope, sans-serif");
+    centerLbl.setAttribute("fill", getComputedStyle(document.documentElement).getPropertyValue("--ink-muted").trim());
+    centerLbl.textContent = "gasto no mês";
+    donutSvg.appendChild(centerLbl);
+
+    used.forEach(function(c){
+      var amt = byCat[c.key];
+      var pct = Math.round((amt/total)*100);
+      var row = document.createElement("button");
+      row.type = "button";
+      row.className = "legend-row";
+      row.dataset.cat = c.key;
+      row.innerHTML =
+        '<span class="dot" style="background:' + seriesColor(c.varc) + '"></span>' +
+        '<span class="lname">' + c.label + '</span>' +
+        '<span class="lval num">' + fmtBRL(amt) + '</span>' +
+        '<span class="lpct num">' + pct + '%</span>';
+      row.addEventListener("mouseenter", function(){ highlightCat(c.key, true); });
+      row.addEventListener("mouseleave", function(){ highlightCat(c.key, false); });
+      legendEl.appendChild(row);
+    });
+  }
+
+  function highlightCat(key, on){
+    var path = donutSvg.querySelector('path[data-cat="' + key + '"]');
+    if(path){ path.style.opacity = on ? "0.75" : "1"; }
+    var row = legendEl.querySelector('.legend-row[data-cat="' + key + '"]');
+    if(row){ row.classList.toggle("hi", on); }
+  }
+
+  /* ---------------- compare bars ---------------- */
+  function renderCompare(salary, totalSpent){
+    var domain = Math.max(salary, totalSpent, 1) * 1.05;
+    var rendaFill = document.getElementById("cmpRendaFill");
+    var gastoFill = document.getElementById("cmpGastoFill");
+    document.getElementById("cmpRendaAmt").textContent = fmtBRL(salary);
+    document.getElementById("cmpGastoAmt").textContent = fmtBRL(totalSpent);
+    rendaFill.style.width = Math.min((salary/domain)*100, 100) + "%";
+    gastoFill.style.width = Math.min((totalSpent/domain)*100, 100) + "%";
+
+    var ratio = salary > 0 ? totalSpent/salary : (totalSpent > 0 ? 2 : 0);
+    var note = document.getElementById("cmpNote");
+    var statusColor, statusText;
+    if(ratio <= 0.7){ statusColor = "var(--good)"; statusText = "Sobrando espaço no orçamento."; }
+    else if(ratio <= 1.0){ statusColor = "var(--warning)"; statusText = "No limite do salário."; }
+    else { statusColor = "var(--critical)"; statusText = "Ultrapassou o salário em " + fmtBRL(totalSpent-salary) + "."; }
+    gastoFill.style.background = statusColor;
+    note.style.color = statusColor;
+    note.textContent = statusText;
+  }
+
+  /* ---------------- totals / hero / meter ---------------- */
+  function renderTotalsAndCharts(){
+    var salary = state.salary;
+    var byCat = {};
+    CATS.forEach(function(c){ byCat[c.key] = 0; });
+    var totalSpent = 0;
+    state.expenses.forEach(function(e){
+      var v = e.value || 0;
+      byCat[e.cat] = (byCat[e.cat]||0) + v;
+      totalSpent += v;
+    });
+
+    document.getElementById("totalGastos").textContent = fmtBRL(totalSpent);
+
+    var balance = salary - totalSpent;
+    var balanceValueEl = document.getElementById("balanceValue");
+    var balanceLabelEl = document.getElementById("balanceLabel");
+    var balanceSubEl = document.getElementById("balanceSub");
+
+    if(balance >= 0){
+      balanceValueEl.className = "balance-value num good";
+      balanceLabelEl.textContent = "O que sobra no fim do mês";
+      balanceValueEl.textContent = fmtBRL(balance);
+      balanceSubEl.textContent = totalSpent > 0 ? "Seus gastos somam " + fmtBRL(totalSpent) + "." : "Você ainda não adicionou gastos.";
+    } else {
+      balanceValueEl.className = "balance-value num bad";
+      balanceLabelEl.textContent = "Você fica no vermelho em";
+      balanceValueEl.textContent = fmtBRL(Math.abs(balance));
+      balanceSubEl.textContent = "Seus gastos são " + fmtBRL(Math.abs(balance)) + " maiores que o salário.";
+    }
+
+    var pct = salary > 0 ? (totalSpent/salary)*100 : (totalSpent > 0 ? 100 : 0);
+    var pctClamped = Math.min(pct, 100);
+    document.getElementById("meterPct").textContent = Math.round(pct) + "%";
+    var meterFill = document.getElementById("meterFill");
+    meterFill.style.width = pctClamped + "%";
+    var meterStatus = document.getElementById("meterStatus");
+    var dot = meterStatus.querySelector(".status-dot");
+    var textSpan = meterStatus.querySelector("span:last-child");
+    var color, msg;
+    if(totalSpent <= 0){ color = "var(--ink-muted)"; msg = "Sem gastos ainda"; }
+    else if(pct <= 70){ color = "var(--good)"; msg = "Tranquilo, sobra dinheiro"; }
+    else if(pct <= 100){ color = "var(--warning)"; msg = "Perto do limite do salário"; }
+    else { color = "var(--critical)"; msg = "Passou do salário"; }
+    meterFill.style.background = color;
+    dot.style.background = color;
+    textSpan.textContent = msg;
+    meterStatus.style.color = color;
+
+    renderDonut(byCat, totalSpent);
+    renderCompare(salary, totalSpent);
+  }
+
+  function renderExampleBanner(){
+    document.getElementById("exampleBanner").hidden = !state.isExample;
+  }
+
+  function renderAll(){
+    renderExampleBanner();
+    renderRows();
+    renderTotalsAndCharts();
+  }
+
+  /* ---------------- salary input ---------------- */
+  var salaryInput = document.getElementById("salaryInput");
+  salaryInput.value = state.salary ? state.salary.toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2}) : "0,00";
+  salaryInput.addEventListener("input", function(){
+    state.salary = parseMoney(salaryInput.value);
+    markEdited(); saveState(); renderExampleBanner(); renderTotalsAndCharts();
+  });
+  salaryInput.addEventListener("blur", function(){
+    salaryInput.value = state.salary ? state.salary.toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2}) : "0,00";
+  });
+
+  document.getElementById("addRowBtn").addEventListener("click", function(){
+    addRow("outros", "", 0);
+  });
+
+  document.getElementById("clearExampleBtn").addEventListener("click", function(){
+    state.salary = 0;
+    state.expenses = [];
+    state.isExample = false;
+    saveState();
+    salaryInput.value = "0,00";
+    renderAll();
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    if(!confirm("Isso vai apagar todos os gastos que você preencheu. Continuar?")) return;
+    state = defaultState();
+    saveState();
+    salaryInput.value = state.salary.toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2});
+    renderAll();
+  });
+
+  if(window.matchMedia){
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){
+      renderAll();
+    });
+  }
+
+  renderAll();
+})();
+</script>
