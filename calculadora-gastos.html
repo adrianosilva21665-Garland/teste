@@ -228,6 +228,43 @@
   .tips ul{ margin:8px 0 0; padding-left:18px; }
   .tips li{ margin-bottom:4px; }
 
+  /* ---------- goals panel ---------- */
+  .goals-panel{ margin-top:24px; }
+  .goals-summary{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:18px; }
+  .goals-summary .compare{ gap:10px; }
+  .goals-summary-title{ font-size:12px; font-weight:700; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; }
+
+  .goal-cards{ display:flex; flex-direction:column; gap:12px; margin-bottom:16px; }
+  .goal-card{ border:1px solid var(--line); border-radius:12px; padding:14px 16px 16px; background:var(--surface); }
+  .goal-head{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .goal-head .dot{ width:11px; height:11px; border-radius:50%; flex:none; }
+  .goal-head input.goal-name{
+    flex:1; min-width:0; border:1.5px solid transparent; background:transparent; color:var(--ink);
+    font-family:"Fraunces",serif; font-weight:700; font-size:1.02rem; border-radius:7px; padding:5px 7px;
+  }
+  .goal-head input.goal-name:hover{ background:var(--surface-raised); }
+  .goal-head input.goal-name:focus{ outline:none; border-color:var(--accent); background:var(--surface-raised); }
+  .goal-head .remove-btn{ flex:none; }
+
+  .goal-fields{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }
+  @media (max-width:520px){ .goal-fields{ grid-template-columns:1fr; } }
+  .goal-field label{ display:block; font-size:11px; font-weight:700; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px; }
+  .goal-field .field-wrap{
+    display:flex; align-items:center; gap:6px; background:var(--surface-raised); border:1.5px solid var(--line);
+    border-radius:8px; padding:6px 9px;
+  }
+  .goal-field .field-wrap:focus-within{ border-color:var(--accent); }
+  .goal-field .field-wrap span{ color:var(--ink-muted); font-size:12px; font-weight:700; }
+  .goal-field input{ border:none; outline:none; background:transparent; color:var(--ink); font-weight:700; font-size:13.5px; width:100%; min-width:0; text-align:right; }
+
+  .goal-progress-track{ height:14px; border-radius:8px; background:var(--surface-raised); border:1px solid var(--line); overflow:hidden; }
+  .goal-progress-fill{ height:100%; border-radius:8px 3px 3px 8px; transition:width .35s ease; }
+  .goal-progress-info{ display:flex; justify-content:space-between; gap:10px; margin-top:7px; font-size:12.5px; color:var(--ink-soft); flex-wrap:wrap; }
+  .goal-progress-info .pct{ font-weight:800; color:var(--ink); }
+  .goal-eta{ font-weight:600; }
+
+  .goals-empty{ font-size:13px; color:var(--ink-muted); padding:6px 0 14px; }
+
   .tooltip{
     position:fixed; pointer-events:none; background:var(--ink); color:var(--page);
     font-size:12px; font-weight:600; padding:6px 9px; border-radius:7px; z-index:200;
@@ -337,6 +374,35 @@
 
   </main>
 
+  <section class="panel goals-panel">
+    <h2>Seus objetivos</h2>
+    <p class="hint">Apartamento, carro, viagem, reserva de emergência — diga quanto precisa, quanto já tem e quanto vai guardar por mês, e a gente calcula quanto tempo falta.</p>
+
+    <div class="goals-summary">
+      <div class="goals-summary-title">Isso cabe no que sobra do seu salário?</div>
+      <div class="compare">
+        <div class="compare-row">
+          <div class="compare-labels"><span class="name">Sobra do mês</span><span class="amt num" id="goalCmpSobraAmt">R$ 0,00</span></div>
+          <div class="compare-track"><div class="compare-fill" id="goalCmpSobraFill" style="width:0%; background:var(--accent)"></div></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-labels"><span class="name">Guardando por mês</span><span class="amt num" id="goalCmpGuardadoAmt">R$ 0,00</span></div>
+          <div class="compare-track"><div class="compare-fill" id="goalCmpGuardadoFill" style="width:0%"></div></div>
+          <div class="compare-note" id="goalCmpNote"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chips" id="goalChips"></div>
+
+    <div class="goal-cards" id="goalCards"></div>
+    <div class="goals-empty" id="goalsEmpty" hidden>Você ainda não tem objetivos. Clique em um exemplo acima ou em "Adicionar objetivo".</div>
+
+    <div class="ledger-actions">
+      <button class="btn btn-primary" id="addGoalBtn" type="button">+ Adicionar objetivo</button>
+    </div>
+  </section>
+
   <footer>Feito pra ajudar a organizar as contas do mês. Nada aqui é enviado pra nenhum servidor.</footer>
 </div>
 
@@ -377,6 +443,15 @@
     { cat:"outros", desc:"Outros gastos" }
   ];
 
+  var GOAL_PRESETS = [
+    "Entrada do apartamento",
+    "Carro",
+    "Reserva de emergência",
+    "Viagem",
+    "Casa própria",
+    "Outro objetivo"
+  ];
+
   var STORAGE_KEY = "sobra-do-mes-v1";
   var uidCounter = 1;
   function uid(){ return "r" + (uidCounter++) + "-" + Math.random().toString(36).slice(2,7); }
@@ -394,6 +469,11 @@
         { id: uid(), cat:"saude",       desc:"Plano de saúde",        value:150 },
         { id: uid(), cat:"lazer",       desc:"Streaming e lazer",     value:60 },
         { id: uid(), cat:"dividas",     desc:"Cartão de crédito",     value:400 }
+      ],
+      goals: [
+        { id: uid(), name:"Entrada do apartamento", target:20000, saved:2000, monthly:300 },
+        { id: uid(), name:"Carro",                  target:15000, saved:0,    monthly:150 },
+        { id: uid(), name:"Reserva de emergência",  target:3000,  saved:500,  monthly:100 }
       ]
     };
   }
@@ -404,6 +484,7 @@
       if(!raw) return defaultState();
       var parsed = JSON.parse(raw);
       if(!parsed || typeof parsed.salary !== "number" || !Array.isArray(parsed.expenses)) return defaultState();
+      if(!Array.isArray(parsed.goals)) parsed.goals = [];
       return parsed;
     }catch(e){ return defaultState(); }
   }
@@ -704,6 +785,186 @@
     note.textContent = statusText;
   }
 
+  /* ---------------- goals ---------------- */
+  var goalChipsWrap = document.getElementById("goalChips");
+  GOAL_PRESETS.forEach(function(name){
+    var chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip";
+    chip.textContent = name;
+    chip.addEventListener("click", function(){ addGoal(name); });
+    goalChipsWrap.appendChild(chip);
+  });
+
+  var goalCardsEl = document.getElementById("goalCards");
+  var goalsEmptyEl = document.getElementById("goalsEmpty");
+  document.getElementById("addGoalBtn").addEventListener("click", function(){ addGoal(""); });
+
+  function addGoal(name){
+    state.goals.push({ id: uid(), name: name || "", target:0, saved:0, monthly:0 });
+    markEdited(); saveState(); renderGoalsAll();
+    var lastNameInput = goalCardsEl.querySelector('.goal-card:last-child .goal-name');
+    if(lastNameInput){ lastNameInput.focus(); lastNameInput.select(); }
+  }
+
+  function goalMoneyInput(exp, field, onChange){
+    var input = document.createElement("input");
+    input.type = "text";
+    input.inputMode = "decimal";
+    input.value = exp[field] ? exp[field].toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2}) : "";
+    input.placeholder = "0,00";
+    input.addEventListener("input", function(){
+      exp[field] = parseMoney(input.value);
+      markEdited(); saveState();
+      if(onChange) onChange();
+      renderGoalsSummary(lastBalance);
+    });
+    input.addEventListener("blur", function(){
+      input.value = exp[field] ? exp[field].toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2}) : "";
+    });
+    return input;
+  }
+
+  function monthsToGoal(g){
+    if(g.saved >= g.target && g.target > 0) return 0;
+    if(!g.monthly || g.monthly <= 0) return null;
+    return Math.ceil((g.target - g.saved) / g.monthly);
+  }
+
+  function etaLabel(months){
+    if(months === null) return "Defina quanto vai guardar por mês pra calcular o tempo.";
+    if(months <= 0) return "Meta batida!";
+    var years = Math.floor(months/12), rem = months%12;
+    var parts = [];
+    if(years > 0) parts.push(years + (years===1 ? " ano" : " anos"));
+    if(rem > 0) parts.push(rem + (rem===1 ? " mês" : " meses"));
+    var timeStr = parts.join(" e ");
+    var target = new Date();
+    target.setMonth(target.getMonth() + months);
+    var dateStr = target.toLocaleDateString("pt-BR", { month:"short", year:"numeric" });
+    return "≈ " + timeStr + " (por volta de " + dateStr + ")";
+  }
+
+  function renderGoalCards(){
+    goalCardsEl.innerHTML = "";
+    goalsEmptyEl.hidden = state.goals.length > 0;
+
+    state.goals.forEach(function(g, idx){
+      var color = seriesColor("--series-" + ((idx % 8) + 1));
+
+      var card = document.createElement("div");
+      card.className = "goal-card";
+
+      var head = document.createElement("div");
+      head.className = "goal-head";
+      var dot = document.createElement("span");
+      dot.className = "dot"; dot.style.background = color;
+
+      var nameInput = document.createElement("input");
+      nameInput.type = "text"; nameInput.className = "goal-name";
+      nameInput.placeholder = "Nome do objetivo";
+      nameInput.value = g.name;
+      nameInput.addEventListener("input", function(){
+        g.name = nameInput.value; markEdited(); saveState();
+      });
+
+      var removeBtn = document.createElement("button");
+      removeBtn.type = "button"; removeBtn.className = "remove-btn";
+      removeBtn.setAttribute("aria-label", "Remover objetivo");
+      removeBtn.textContent = "×";
+      removeBtn.addEventListener("click", function(){
+        state.goals = state.goals.filter(function(x){ return x.id !== g.id; });
+        markEdited(); saveState(); renderGoalsAll();
+      });
+
+      head.appendChild(dot); head.appendChild(nameInput); head.appendChild(removeBtn);
+      card.appendChild(head);
+
+      var fill = document.createElement("div");
+      fill.className = "goal-progress-fill";
+      fill.style.background = color;
+      var pctSpan = document.createElement("span");
+      var etaSpan = document.createElement("span");
+      etaSpan.className = "goal-eta";
+
+      function refreshProgress(){
+        var pct = g.target > 0 ? Math.min(g.saved / g.target, 1) * 100 : 0;
+        fill.style.width = pct + "%";
+        pctSpan.innerHTML = '<span class="pct">' + Math.round(pct) + '%</span> guardado';
+        etaSpan.textContent = etaLabel(monthsToGoal(g));
+      }
+
+      var fields = document.createElement("div");
+      fields.className = "goal-fields";
+
+      [
+        ["target", "Preciso de"],
+        ["saved", "Já tenho"],
+        ["monthly", "Guardando por mês"]
+      ].forEach(function(pair){
+        var field = document.createElement("div");
+        field.className = "goal-field";
+        var label = document.createElement("label");
+        label.textContent = pair[1];
+        var wrap = document.createElement("div");
+        wrap.className = "field-wrap";
+        var prefix = document.createElement("span");
+        prefix.textContent = "R$";
+        var input = goalMoneyInput(g, pair[0], refreshProgress);
+        wrap.appendChild(prefix); wrap.appendChild(input);
+        field.appendChild(label); field.appendChild(wrap);
+        fields.appendChild(field);
+      });
+      card.appendChild(fields);
+
+      var track = document.createElement("div");
+      track.className = "goal-progress-track";
+      track.appendChild(fill);
+      card.appendChild(track);
+
+      var info = document.createElement("div");
+      info.className = "goal-progress-info";
+      info.appendChild(pctSpan); info.appendChild(etaSpan);
+      card.appendChild(info);
+
+      refreshProgress();
+      goalCardsEl.appendChild(card);
+    });
+  }
+
+  function renderGoalsSummary(sobra){
+    var totalMonthly = state.goals.reduce(function(sum, g){ return sum + (g.monthly || 0); }, 0);
+    var sobraPositiva = Math.max(sobra, 0);
+    var domain = Math.max(sobraPositiva, totalMonthly, 1) * 1.05;
+
+    document.getElementById("goalCmpSobraAmt").textContent = fmtBRL(sobraPositiva);
+    document.getElementById("goalCmpGuardadoAmt").textContent = fmtBRL(totalMonthly);
+    document.getElementById("goalCmpSobraFill").style.width = Math.min((sobraPositiva/domain)*100, 100) + "%";
+    var guardadoFill = document.getElementById("goalCmpGuardadoFill");
+    guardadoFill.style.width = Math.min((totalMonthly/domain)*100, 100) + "%";
+
+    var note = document.getElementById("goalCmpNote");
+    var color, text;
+    if(totalMonthly <= 0){
+      color = "var(--ink-muted)"; text = "Defina quanto vai guardar por mês em cada objetivo.";
+    } else if(sobra < 0){
+      color = "var(--critical)"; text = "Seus gastos já passam do salário — ajuste os gastos antes de guardar para objetivos.";
+    } else if(totalMonthly <= sobraPositiva){
+      color = "var(--good)"; text = "Cabe direitinho no que sobra do seu salário.";
+    } else {
+      color = "var(--critical)"; text = "Isso é " + fmtBRL(totalMonthly - sobraPositiva) + " maior do que sobra — reduza algum valor mensal.";
+    }
+    guardadoFill.style.background = color;
+    note.style.color = color;
+    note.textContent = text;
+  }
+
+  var lastBalance = 0;
+  function renderGoalsAll(){
+    renderGoalCards();
+    renderGoalsSummary(lastBalance);
+  }
+
   /* ---------------- totals / hero / meter ---------------- */
   function renderTotalsAndCharts(){
     var salary = state.salary;
@@ -719,6 +980,8 @@
     document.getElementById("totalGastos").textContent = fmtBRL(totalSpent);
 
     var balance = salary - totalSpent;
+    lastBalance = balance;
+    var totalMonthlyGoals = state.goals.reduce(function(sum, g){ return sum + (g.monthly || 0); }, 0);
     var balanceValueEl = document.getElementById("balanceValue");
     var balanceLabelEl = document.getElementById("balanceLabel");
     var balanceSubEl = document.getElementById("balanceSub");
@@ -727,7 +990,14 @@
       balanceValueEl.className = "balance-value num good";
       balanceLabelEl.textContent = "O que sobra no fim do mês";
       balanceValueEl.textContent = fmtBRL(balance);
-      balanceSubEl.textContent = totalSpent > 0 ? "Seus gastos somam " + fmtBRL(totalSpent) + "." : "Você ainda não adicionou gastos.";
+      var sub = totalSpent > 0 ? "Seus gastos somam " + fmtBRL(totalSpent) + "." : "Você ainda não adicionou gastos.";
+      if(totalMonthlyGoals > 0){
+        var afterGoals = balance - totalMonthlyGoals;
+        sub += afterGoals >= 0
+          ? " Depois de guardar pros seus objetivos, sobram " + fmtBRL(afterGoals) + "."
+          : " Não sobra o bastante pra guardar tudo isso nos objetivos — faltam " + fmtBRL(Math.abs(afterGoals)) + ".";
+      }
+      balanceSubEl.textContent = sub;
     } else {
       balanceValueEl.className = "balance-value num bad";
       balanceLabelEl.textContent = "Você fica no vermelho em";
@@ -755,6 +1025,7 @@
 
     renderDonut(byCat, totalSpent);
     renderCompare(salary, totalSpent);
+    renderGoalsSummary(balance);
   }
 
   function renderExampleBanner(){
@@ -764,6 +1035,7 @@
   function renderAll(){
     renderExampleBanner();
     renderRows();
+    renderGoalCards();
     renderTotalsAndCharts();
   }
 
@@ -785,6 +1057,7 @@
   document.getElementById("clearExampleBtn").addEventListener("click", function(){
     state.salary = 0;
     state.expenses = [];
+    state.goals = [];
     state.isExample = false;
     saveState();
     salaryInput.value = "0,00";
@@ -792,7 +1065,7 @@
   });
 
   document.getElementById("resetBtn").addEventListener("click", function(){
-    if(!confirm("Isso vai apagar todos os gastos que você preencheu. Continuar?")) return;
+    if(!confirm("Isso vai apagar todos os gastos e objetivos que você preencheu. Continuar?")) return;
     state = defaultState();
     saveState();
     salaryInput.value = state.salary.toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2});
